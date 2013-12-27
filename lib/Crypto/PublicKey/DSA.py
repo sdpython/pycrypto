@@ -85,8 +85,9 @@ import sys
 if sys.version_info[0] == 2 and sys.version_info[1] == 1:
     from Crypto.Util.py21compat import *
 
-from Crypto.PublicKey import _DSA, _slowmath, pubkey
 from Crypto import Random
+from Crypto.Util.number import bytes_to_long, long_to_bytes, getRandomRange
+from Crypto.PublicKey import _DSA, _slowmath, pubkey
 
 try:
     from Crypto.PublicKey import _fastmath
@@ -181,7 +182,8 @@ class _DSAobj(pubkey.pubkey):
         raise TypeError("DSA cannot unblind")
 
     def _sign(self, m, k):
-        return self.key._sign(m, k)
+        blind_factor = getRandomRange(1, self.key.q, self._randfunc)
+        return self.key._sign(m, k, blind_factor)
 
     def _verify(self, m, sig):
         (r, s) = sig
