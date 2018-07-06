@@ -292,15 +292,6 @@ class FastmathTests(unittest.TestCase):
         self.assertEqual(n, k.n)
         self.assertEqual(e, k.e)
 
-    def test_isPrime_randfunc_exception(self):
-        """Test that when isPrime is called, an exception raised in randfunc is propagated."""
-
-        def randfunc(n):
-            raise MyError
-
-        prime = 3536384141L  # Needs to be large enough so that rabinMillerTest will be invoked
-        self.assertRaises(MyError, number._fastmath.isPrime, prime, randfunc=randfunc)
-
     def test_getStrongPrime_randfunc_exception(self):
         """Test that when getStrongPrime is called, an exception raised in randfunc is propagated."""
 
@@ -308,15 +299,6 @@ class FastmathTests(unittest.TestCase):
             raise MyError
 
         self.assertRaises(MyError, number._fastmath.getStrongPrime, 512, randfunc=randfunc)
-
-    def test_isPrime_randfunc_bogus(self):
-        """Test that when isPrime is called, an exception is raised if randfunc returns something bogus."""
-
-        def randfunc(n):
-            return None
-
-        prime = 3536384141L  # Needs to be large enough so that rabinMillerTest will be invoked
-        self.assertRaises(TypeError, number._fastmath.isPrime, prime, randfunc=randfunc)
 
     def test_getStrongPrime_randfunc_bogus(self):
         """Test that when getStrongPrime is called, an exception is raised if randfunc returns something bogus."""
