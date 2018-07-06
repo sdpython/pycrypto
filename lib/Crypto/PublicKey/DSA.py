@@ -113,9 +113,12 @@ class _DSAobj(pubkey.pubkey):
     #:  - **x**, the private key.
     keydata = ['y', 'g', 'p', 'q', 'x']
 
-    def __init__(self, implementation, key):
+    def __init__(self, implementation, key, randfunc=None):
         self.implementation = implementation
         self.key = key
+        if randfunc is None:
+            randfunc = Random.new().read
+        self._randfunc = randfunc
 
     def __getattr__(self, attrname):
         if attrname in self.keydata:
@@ -219,6 +222,8 @@ class _DSAobj(pubkey.pubkey):
     def __setstate__(self, d):
         if not hasattr(self, 'implementation'):
             self.implementation = DSAImplementation()
+        if not hasattr(self, '_randfunc'):
+            self._randfunc = Random.new().read
         t = []
         for k in self.keydata:
             if not d.has_key(k):
