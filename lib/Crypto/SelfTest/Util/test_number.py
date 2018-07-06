@@ -46,8 +46,16 @@ class MiscTests(unittest.TestCase):
 
     def test_ceil_shift(self):
         """Util.number.ceil_shift"""
-        self.assertRaises(AssertionError, number.ceil_shift, -1, 1)
-        self.assertRaises(AssertionError, number.ceil_shift, 1, -1)
+        try:
+            assert False
+            # noinspection PyUnreachableCode
+            assert_disabled = True
+        except AssertionError:
+            assert_disabled = False
+
+        if not assert_disabled:
+            self.assertRaises(AssertionError, number.ceil_shift, -1, 1)
+            self.assertRaises(AssertionError, number.ceil_shift, 1, -1)
 
         # b = 0
         self.assertEqual(0, number.ceil_shift(0, 0))
