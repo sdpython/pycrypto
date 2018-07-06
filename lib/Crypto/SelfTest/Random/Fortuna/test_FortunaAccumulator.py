@@ -67,8 +67,16 @@ class FortunaAccumulatorTests(unittest.TestCase):
     def test_which_pools(self):
         """FortunaAccumulator.which_pools"""
 
-        # which_pools(0) should fail
-        self.assertRaises(AssertionError, FortunaAccumulator.which_pools, 0)
+        try:
+            assert False
+            # noinspection PyUnreachableCode
+            assert_disabled = True
+        except AssertionError:
+            assert_disabled = False
+
+        if not assert_disabled:
+            # which_pools(0) should fail
+            self.assertRaises(AssertionError, FortunaAccumulator.which_pools, 0)
 
         self.assertEqual(FortunaAccumulator.which_pools(1), [0])
         self.assertEqual(FortunaAccumulator.which_pools(2), [0, 1])
