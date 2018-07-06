@@ -883,12 +883,13 @@ rsaKey__encrypt (rsaKey * key, PyObject * args)
 	result = rsaEncrypt (key, v);
 	if (result == 1)
 	{
+		mpz_clear (v);
 		PyErr_SetString (PyExc_ValueError, "Plaintext too large");
 		return NULL;
 	}
 	r = (PyObject *) mpzToLongObj (v);
-	if (r == NULL) return NULL;
 	mpz_clear (v);
+	if (r == NULL) return NULL;
 	retval = Py_BuildValue ("N", r);
 	if (retval == NULL) {
 		Py_DECREF(r);
@@ -912,19 +913,21 @@ rsaKey__decrypt (rsaKey * key, PyObject * args)
 	result = rsaDecrypt (key, v);
 	if (result == 1)
 	{
+		mpz_clear (v);
 		PyErr_SetString (PyExc_ValueError,
 				 "Ciphertext too large");
 		return NULL;
 	}
 	else if (result == 2)
 	{
+		mpz_clear (v);
 		PyErr_SetString (PyExc_TypeError,
 				 "Private key not available in this object");
 		return NULL;
 	}
 	r = mpzToLongObj (v);
-	if (r == NULL) return NULL;
 	mpz_clear (v);
+	if (r == NULL) return NULL;
 	retval = Py_BuildValue ("N", r);
 	if (retval == NULL) {
 		Py_DECREF(r);
@@ -978,21 +981,23 @@ rsaKey__blind (rsaKey * key, PyObject * args)
 	longObjToMPZ (v, (PyLongObject *) l);
 	longObjToMPZ (vblind, (PyLongObject *) lblind);
 	result = rsaBlind (key, v, vblind);
+	mpz_clear (vblind);
 	if (result == 1)
 		{
+			mpz_clear (v);
 			PyErr_SetString (PyExc_ValueError, "Message too large");
 			return NULL;
 		}
 	else if (result == 2)
 		{
+			mpz_clear (v);
 			PyErr_SetString (PyExc_ValueError, "Blinding factor too large");
 			return NULL;
 		}
 	r = (PyObject *) mpzToLongObj (v);
+	mpz_clear (v);
 	if (r == NULL)
 		return NULL;
-	mpz_clear (v);
-	mpz_clear (vblind);
 	retval = Py_BuildValue ("N", r);
 	if (retval == NULL) {
 		Py_DECREF(r);
@@ -1017,25 +1022,28 @@ rsaKey__unblind (rsaKey * key, PyObject * args)
 	longObjToMPZ (v, (PyLongObject *) l);
 	longObjToMPZ (vblind, (PyLongObject *) lblind);
 	result = rsaUnBlind (key, v, vblind);
+	mpz_clear (vblind);
 	if (result == 1)
 		{
+			mpz_clear (v);
 			PyErr_SetString (PyExc_ValueError, "Message too large");
 			return NULL;
 		}
 	else if (result == 2)
 		{
+			mpz_clear (v);
 			PyErr_SetString (PyExc_ValueError, "Blinding factor too large");
 			return NULL;
 		}
 	else if (result == 3)
 		{
+			mpz_clear (v);
 			PyErr_SetString (PyExc_ValueError, "Inverse doesn't exist");
 			return NULL;
 		}
 	r = (PyObject *) mpzToLongObj (v);
-	if (r == NULL) return NULL;
 	mpz_clear (v);
-	mpz_clear (vblind);
+	if (r == NULL) return NULL;
 	retval = Py_BuildValue ("N", r);
 	if (retval == NULL) {
 		Py_DECREF(r);
@@ -1349,7 +1357,9 @@ static int
 rabinMillerTest (mpz_t n, int rounds, PyObject *randfunc)
 {
 	int base_was_tested;
-	unsigned long int i, j, b, composite, return_val=1;
+	long last_tested_cleanup;
+	unsigned long int i, j, b, composite;
+	int return_val = 1;
 	mpz_t a, m, z, n_1, tmp;
 	mpz_t tested[MAX_RABIN_MILLER_ROUNDS];
 
@@ -1382,6 +1392,7 @@ rabinMillerTest (mpz_t n, int rounds, PyObject *randfunc)
 	mpz_sub_ui (n_1, n, 1);
 	b = mpz_scan1 (n_1, 0);
 	mpz_fdiv_q_2exp (m, n_1, b);
+	last_tested_cleanup = -1;
 
 	if (mpz_fits_ulong_p (n) && (mpz_get_ui (n) - 2 < rounds))
 		rounds = mpz_get_ui (n) - 2;
@@ -1408,6 +1419,7 @@ rabinMillerTest (mpz_t n, int rounds, PyObject *randfunc)
 				}
 			}
 		} while (base_was_tested);
+		last_tested_cleanup = i;
 		mpz_init_set (tested[i], a);
 		MPZ_POWM (z, a, m, n);
 		if ((mpz_cmp_ui (z, 1) == 0) || (mpz_cmp (z, n_1) == 0))
@@ -1438,6 +1450,13 @@ rabinMillerTest (mpz_t n, int rounds, PyObject *randfunc)
 	}
 
 cleanup:
+	if (last_tested_cleanup >= 0)
+	{
+		for (i = 0; i <= (unsigned long)last_tested_cleanup; ++i)
+		{
+			mpz_clear (tested[i]);
+		}
+	}
 	mpz_clear (tmp);
 	mpz_clear (n_1);
 	mpz_clear (a);
@@ -1669,6 +1688,7 @@ cleanup:
 	mpz_clear (p[0]);
 	mpz_clear (y[1]);
 	mpz_clear (y[0]);
+	mpf_clear (tmp_bound);
 	/* mpzToLongObj uses Python API so we must acquire the GIL */
 	Py_END_ALLOW_THREADS;
 	if (error)
