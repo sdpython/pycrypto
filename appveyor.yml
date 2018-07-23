@@ -1,47 +1,56 @@
 environment:
 
-  global:
-    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
-    # /E:ON and /V:ON options are not enabled in the batch script intepreter
-    # See: http://stackoverflow.com/a/13751649/163740
-    WITH_COMPILER: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_compiler.cmd"
-
   matrix:
+    #- TARGET_ARCH: x86
+    #  PYTHON_VERSION: 2.7
+    #  CONDA_INSTALL_LOCN: C:\\Miniconda
 
-    - PYTHON: "C:\\Python36-x64"
-      PYTHON_VERSION: "3.6.x"
-      PYTHON_ARCH: "64"
-    - PYTHON: "C:\\Python37-x64"
-      PYTHON_VERSION: "3.7.x"
-      PYTHON_ARCH: "64"
-    # - PYTHON: "C:\\Python37-x64"
-    #  PYTHON_VERSION: "3.7.x"
-    #  PYTHON_ARCH: "64"
-    #  python_flags: "-Qnew"
-    #- PYTHON: "C:\\Python37-x64"
-    #  PYTHON_VERSION: "3.7.x"
-    #  PYTHON_ARCH: "64"
-    #  python_flags: "-OO"
-    - PYTHON: "C:\\Python37-x64"
-      PYTHON_VERSION: "3.7.x"
-      PYTHON_ARCH: "64"
-      preconfigure_args: "--without-gmp"
+    #- TARGET_ARCH: x64
+    #  PYTHON_VERSION: 2.7
+    #  CONDA_INSTALL_LOCN: C:\\Miniconda-x64
 
-init:
-  - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%" 
+    #- TARGET_ARCH: x86
+    #  PYTHON_VERSION: 3.5
+    #  CONDA_INSTALL_LOCN: C:\\Miniconda35
+
+    #- TARGET_ARCH: x64
+    #  PYTHON_VERSION: 3.5
+    #  CONDA_INSTALL_LOCN: C:\\Miniconda35-x64
+
+    #- TARGET_ARCH: x86
+    #  PYTHON_VERSION: 3.6
+    #  CONDA_INSTALL_LOCN: C:\\Miniconda36
+
+    - TARGET_ARCH: x64
+      PYTHON_VERSION: 3.6
+      CONDA_INSTALL_LOCN: C:\\Miniconda36-x64
+      # preconfigure_args: "--without-gmp"
+
+    - TARGET_ARCH: x64
+      PYTHON_VERSION: 3.7
+      CONDA_INSTALL_LOCN: C:\\Miniconda37-x64
+
+platform:
+    - x64
 
 install:
-  - "%PYTHON%\\python -m pip install --upgrade pip"
+    # Activate `conda`
+    - cmd: call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
+
+    # Configure conda
+    - cmd: conda config --add channels conda-forge
+    - cmd: conda config --set show_channel_urls true
+    - cmd: conda config --set always_yes yes --set changeps1 no
+
+    # Create conda environment
+    - cmd: conda create -n test python=%PYTHON_VERSION% mpir mpfr mpc
+    - cmd: call activate test
+
 build: off
 
-before_test:
-  - "%PYTHON%\\python -tt %preconfigure_args% %python_flags% setup.py -q build"
-
 test_script:
-  - "%PYTHON%\\python -tt %preconfigure_args% %python_flags% setup.py test"
-
-after_test:
-  - "%PYTHON%\\python  -tt %preconfigure_args% %python_flags% setup.py bdist_wheel"
+    - cmd: python -tt %preconfigure_args% %python_flags% setup.py -q build -I%CONDA_PREFIX%\Library\include -L%CONDA_PREFIX%\Library\lib
+    - cmd: python -tt %preconfigure_args% %python_flags% setup.py test
 
 artifacts:
   - path: dist
