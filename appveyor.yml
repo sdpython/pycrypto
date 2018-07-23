@@ -17,15 +17,15 @@ environment:
     # - PYTHON: "C:\\Python37-x64"
     #  PYTHON_VERSION: "3.7.x"
     #  PYTHON_ARCH: "64"
-    #  python_flags:-Qnew
+    #  python_flags: "-Qnew"
     #- PYTHON: "C:\\Python37-x64"
     #  PYTHON_VERSION: "3.7.x"
     #  PYTHON_ARCH: "64"
-    #  python_flags:-OO
+    #  python_flags: "-OO"
     - PYTHON: "C:\\Python37-x64"
       PYTHON_VERSION: "3.7.x"
       PYTHON_ARCH: "64"
-      preconfigure_args:--without-gmp
+      preconfigure_args: "--without-gmp"
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%" 
@@ -36,7 +36,7 @@ build:
   - "%PYTHON%\\python -tt %preconfigure_args% %python_flags% setup.py -q build"
 
 test_script:
-  - "%PYTHON%\\python -tt %preconfigure_args% %python_flags% setup.py test
+  - "%PYTHON%\\python -tt %preconfigure_args% %python_flags% setup.py test"
 
 after_test:
   - "%PYTHON%\\python  -tt %preconfigure_args% %python_flags% setup.py bdist_wheel"
