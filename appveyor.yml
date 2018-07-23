@@ -32,7 +32,9 @@ init:
 
 install:
   - "%PYTHON%\\python -m pip install --upgrade pip"
-build:
+build: off
+
+before_test:
   - "%PYTHON%\\python -tt %preconfigure_args% %python_flags% setup.py -q build"
 
 test_script:
