@@ -2,30 +2,33 @@ dist: xenial
 sudo: true
 # PyCrypto .travis.yml file, for travis-ci.org testing.
 # See https://travis-ci.org/dlitz/pycrypto for build status.
-env:
-  - PYENV_VERSION=3.6.5
-  - PYENV_VERSION=3.6.5 preconfigure_args=--without-gmp
-  - PYENV_VERSION=3.7.0
-  - PYENV_VERSION=3.7.0 preconfigure_args=--without-gmp
-  # PyCrypto does not support PyPy yet.
-  # See https://github.com/dlitz/pycrypto/pull/59
-  #  - PYENV_VERSION=pypy-2.3.1
-  #  - PYENV_VERSION=pypy3-2.3.1
-language: python
+
+matrix:
+  include:
+    #- os: linux
+    #  dist: trusty
+    #  language: python
+    #  python: 2.7
+
+    #- os: linux
+    #  dist: trusty
+    #  language: python
+    #  python: 3.5
+
+    - os: linux
+      dist: trusty
+      language: python
+      python: 3.6
+
+    - os: linux
+      dist: xenial
+      language: python
+      python: 3.7
+
 before_install:
-  # Unexport variables
-  - declare +x preconfigure_args python_flags
-  # List local virtualenvs
-  - ls ~/virtualenv || true
-  # Show environment
-  - if [ "$TRAVIS_SECURE_ENV_VARS" = "false" ] ; then env | sort ; fi
-  # Deactivate whichever virtualenv is currently in use
-  - deactivate
   # Install some package dependencies
   - sudo apt-get -qq update
   - sudo apt-get -qq install libgmp-dev
 script:
-  - "major_version=$( python -V 2>&1 | cut -d' ' -f2  | cut -d. -f1 )"
-  - if [ -n "$preconfigure_args" ] ; then ./configure $preconfigure_args ; fi
   - python -tt -bb $python_flags setup.py -q build
   - python -tt -bb $python_flags setup.py test
