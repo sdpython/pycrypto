@@ -7,21 +7,23 @@ env:
 #  - PYENV_VERSION=2.4.6
 #  - PYENV_VERSION=2.5.6
 #  - PYENV_VERSION=2.6.9
-  - PYENV_VERSION=2.7.12
-  - PYENV_VERSION=2.7.12 python_flags=-Qnew
-  - PYENV_VERSION=2.7.12 python_flags=-OO
-  - PYENV_VERSION=2.7.12 preconfigure_args=--without-gmp
+#  - PYENV_VERSION=2.7.12
+#  - PYENV_VERSION=2.7.12 python_flags=-Qnew
+#  - PYENV_VERSION=2.7.12 python_flags=-OO
+#  - PYENV_VERSION=2.7.12 preconfigure_args=--without-gmp
 # pip won't install on Python 3.0 (lack of collections.OrderedDict object?)
 #  - PYENV_VERSION=3.0.1
 #  - PYENV_VERSION=3.1.5
 #  - PYENV_VERSION=3.2.5
 #  - PYENV_VERSION=3.3.5
-  - PYENV_VERSION=3.4.3
-  - PYENV_VERSION=3.4.3 preconfigure_args=--without-gmp
-  - PYENV_VERSION=3.5.2
-  - PYENV_VERSION=3.5.2 preconfigure_args=--without-gmp
-  - PYENV_VERSION=3.6.3
-  - PYENV_VERSION=3.6.3 preconfigure_args=--without-gmp
+#  - PYENV_VERSION=3.4.3
+#  - PYENV_VERSION=3.4.3 preconfigure_args=--without-gmp
+#  - PYENV_VERSION=3.5.2
+#  - PYENV_VERSION=3.5.2 preconfigure_args=--without-gmp
+  - PYENV_VERSION=3.6.5
+  - PYENV_VERSION=3.6.5 preconfigure_args=--without-gmp
+  - PYENV_VERSION=3.7.0
+  - PYENV_VERSION=3.7.0 preconfigure_args=--without-gmp
 # PyCrypto does not support PyPy yet.
 # See https://github.com/dlitz/pycrypto/pull/59
 #  - PYENV_VERSION=pypy-2.3.1
